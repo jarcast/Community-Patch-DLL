@@ -3602,6 +3602,9 @@ protected:
 	void doResearch();
 	void doWarnings();
 
+	//for superobserver
+	void ExportGameState();
+
 	// Danger plots!
 	CvDangerPlots* m_pDangerPlots;
 

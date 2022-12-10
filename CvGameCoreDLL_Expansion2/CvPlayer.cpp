@@ -51,9 +51,7 @@
 #include "CvEnumSerialization.h"
 #include "FStlContainerSerialization.h"
 #include <sstream>
-#if defined(MOD_BALANCE_CORE)
 #include <iomanip>
-#endif
 
 #include "CvInternalGameCoreUtils.h"
 #include "CvAchievementUnlocker.h"
@@ -64,6 +62,11 @@
 #include "CvDllPlot.h"
 #endif
 #include "CvGoodyHuts.h"
+
+#define SUPEROBSERVER "c:\\civ-superobserver"
+#ifdef SUPEROBSERVER
+#include "yaml-cpp/yaml.h"
+#endif
 
 #include "CvDllNetMessageExt.h"
 // Include this after all other headers.
@@ -34428,6 +34431,10 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 				theMap.plotByIndexUnchecked(iI)->flipVisibility(getTeam());
 #endif
 
+#ifdef SUPEROBSERVER
+			ExportGameState();
+#endif
+
 			if(kGame.getActivePlayer() == m_eID)
 				theMap.updateDeferredFog();
 
@@ -44289,6 +44296,186 @@ int CvPlayer::getAdvancedStartVisibilityCost(bool bAdd, CvPlot* pPlot)
 
 	return iCost;
 }
+
+#ifdef SUPEROBSERVER
+YAML::Emitter& operator << (YAML::Emitter& out, const CvPlot& x)
+{
+	//todo: river edges
+	out << YAML::BeginMap;
+	out << YAML::Key << "x";
+	out << YAML::Value << x.getX();
+	out << YAML::Key << "y";
+	out << YAML::Value << x.getY();
+	out << YAML::Key << "owner";
+	out << YAML::Value << x.getOwner();
+	out << YAML::Key << "city";
+	out << YAML::Value << x.getOwningCityID();
+	out << YAML::Key << "terrain";
+	out << YAML::Value << x.getTerrainType();
+	out << YAML::Key << "feature";
+	out << YAML::Value << x.getFeatureType();
+	out << YAML::Key << "improvement";
+	out << YAML::Value << x.getImprovementType(); //should really be revealedImprovement but no access to team here
+	out << YAML::Key << "route";
+	out << YAML::Value << (x.HasRoute(ROUTE_RAILROAD) ? 8 : x.HasRoute(ROUTE_ROAD) ? 3 : 1); //routes give faster movement; also depends on player tech so we fake it
+	out << YAML::EndMap;
+	return out;
+}
+
+YAML::Emitter& operator << (YAML::Emitter& out, const CvUnit& x)
+{
+	vector<int> promotions;
+	for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+		if (x.HasPromotion((PromotionTypes)iI))
+			promotions.push_back(iI);
+
+	vector<pair<int,int>> reachable;
+	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING_SELF | CvUnit::MOVEFLAG_IGNORE_STACKING_NEUTRAL | CvUnit::MOVEFLAG_IGNORE_ENEMIES | CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_ZOC;
+	ReachablePlots plots = TacticalAIHelpers::GetAllPlotsInReachThisTurn(&x, x.plot(), iFlags, 0, x.maxMoves());
+	for (ReachablePlots::const_iterator it = plots.begin(); it != plots.end(); ++it)
+	{
+		CvPlot* p = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+		reachable.push_back( make_pair(p->getX(),p->getY()) );
+	}
+
+	out << YAML::BeginMap;
+	out << YAML::Key << "id";
+	out << YAML::Value << x.GetID();
+	out << YAML::Key << "x";
+	out << YAML::Value << x.getX();
+	out << YAML::Key << "y";
+	out << YAML::Value << x.getY();
+	out << YAML::Key << "owner";
+	out << YAML::Value << x.getOwner();
+	out << YAML::Key << "hp";
+	out << YAML::Value << x.GetCurrHitPoints();
+	out << YAML::Key << "hpmax";
+	out << YAML::Value << x.GetMaxHitPoints();
+	out << YAML::Key << "baseCS";
+	out << YAML::Value << x.GetBaseCombatStrength();
+	out << YAML::Key << "rangedCS";
+	out << YAML::Value << x.GetBaseRangedCombatStrength();
+	out << YAML::Key << "moveRange";
+	out << YAML::Value << x.baseMoves(false);
+	out << YAML::Key << "attackRange";
+	out << YAML::Value << x.GetRange();
+	out << YAML::Key << "visibilityRange";
+	out << YAML::Value << x.visibilityRange();
+	out << YAML::Key << "xp";
+	out << YAML::Value << x.getExperienceTimes100();
+	out << YAML::Key << "promos";
+	out << YAML::Value << promotions;
+	out << YAML::Key << "movement";
+	out << YAML::Value << reachable;
+	out << YAML::EndMap;
+	return out;
+}
+
+YAML::Emitter& operator << (YAML::Emitter& out, const CvCity& x)
+{
+	out << YAML::BeginMap;
+	out << YAML::Key << "id";
+	out << YAML::Value << x.GetID();
+	out << YAML::Key << "x";
+	out << YAML::Value << x.getX();
+	out << YAML::Key << "y";
+	out << YAML::Value << x.getY();
+	out << YAML::Key << "owner";
+	out << YAML::Value << x.getOwner();
+	out << YAML::Key << "hp";
+	out << YAML::Value << (x.GetMaxHitPoints() - x.getDamage());
+	out << YAML::Key << "hpmax";
+	out << YAML::Value << x.GetMaxHitPoints();
+	out << YAML::Key << "pop";
+	out << YAML::Value << x.getPopulation();
+	out << YAML::Key << "rangedCS";
+	out << YAML::Value << x.getStrengthValue(true);
+	out << YAML::Key << "baseCS";
+	out << YAML::Value << x.getStrengthValue(false);
+	out << YAML::Key << "attackRange";
+	out << YAML::Value << x.getBombardRange();
+	out << YAML::EndMap;
+	return out;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::ExportGameState()
+{
+	std::stringstream ss;
+	ss << SUPEROBSERVER << "\\GameStatePlayer" << std::setfill('0') << std::setw(2) << GetID() << "Turn" << std::setfill('0') << std::setw(3) << GC.getGame().getGameTurn() << ".yaml";
+
+	vector<CvPlot*> plotsV, plotsR;
+	vector<CvUnit*> units;
+	vector<CvCity*> cities;
+	vector<int> allies, enemies;
+
+	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+	{
+		CvPlot* p = GC.getMap().plotByIndexUnchecked(iI);
+		if (p->isVisible(getTeam()))
+			plotsV.push_back(p);
+		else if (p->isRevealed(getTeam()))
+			plotsR.push_back(p);
+	}
+
+	// for each opposing civ
+	for (int iPlayer = 0; iPlayer < MAX_PLAYERS; iPlayer++)
+	{
+		CvPlayer& loopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+		if (!loopPlayer.isAlive())
+			continue;
+
+		if (loopPlayer.getTeam() == getTeam())
+			allies.push_back(iPlayer);
+		else if (loopPlayer.isMinorCiv() && loopPlayer.GetMinorCivAI()->GetAlly() == GetID())
+			allies.push_back(iPlayer);
+		else if (IsAtWarWith(loopPlayer.GetID()))
+			enemies.push_back(iPlayer);
+
+		//pick all visible units
+		int iLoop = 0;
+		for (CvUnit* pLoopUnit = loopPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = loopPlayer.nextUnit(&iLoop))
+		{
+			if (pLoopUnit->isInvisible(getTeam(), false))
+				continue;
+
+			if (pLoopUnit->plot()->isVisible(getTeam()))
+				units.push_back(pLoopUnit);
+		}
+
+		// pick all revealed cities
+		for (CvCity* pLoopCity = loopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = loopPlayer.nextCity(&iLoop))
+		{
+			if (pLoopCity->plot()->isRevealed(getTeam()))
+				cities.push_back(pLoopCity);
+		}
+	}
+
+	YAML::Emitter out;
+	out << YAML::BeginMap;
+	out << YAML::Key << "playerId";
+	out << YAML::Value << GetID();
+	out << YAML::Key << "gameTurn";
+	out << YAML::Value << GC.getGame().getGameTurn();
+	out << YAML::Key << "visiblePlots";
+	out << YAML::Value << plotsV;
+	out << YAML::Key << "revealedPlots";
+	out << YAML::Value << plotsR;
+	out << YAML::Key << "knownCities";
+	out << YAML::Value << cities;
+	out << YAML::Key << "visibleUnits";
+	out << YAML::Value << units;
+	out << YAML::Key << "alliedPlayers";
+	out << YAML::Value << allies;
+	out << YAML::Key << "enemyPlayers";
+	out << YAML::Value << enemies;
+	out << YAML::EndMap;
+
+	std::ofstream dump(ss.str().c_str());
+	if (dump.good())
+		dump << out.c_str();
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 void CvPlayer::doWarnings()

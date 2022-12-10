@@ -58,7 +58,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)CvGameCoreDLL_Expansion2\;$(SolutionDir)CvWorldBuilderMap\include\;$(SolutionDir)CvGameCoreDLLUtil\include\;$(SolutionDir)CvLocalization\include\;$(SolutionDir)CvGameDatabase\include\;$(SolutionDir)FirePlace\include\;$(SolutionDir)FirePlace\include\FireWorks\;$(SolutionDir)ThirdPartyLibs\Lua51\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)CvGameCoreDLL_Expansion2\;$(SolutionDir)CvWorldBuilderMap\include\;$(SolutionDir)CvGameCoreDLLUtil\include\;$(SolutionDir)CvLocalization\include\;$(SolutionDir)CvGameDatabase\include\;$(SolutionDir)FirePlace\include\;$(SolutionDir)FirePlace\include\FireWorks\;$(SolutionDir)ThirdPartyLibs\Lua51\include\;$(SolutionDir)ThirdPartyLibs\yaml-cpp\include;$(SolutionDir)ThirdPartyLibs\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
       <AdditionalOptions>/Zm211 %(AdditionalOptions)</AdditionalOptions>
@@ -67,9 +67,11 @@
       <TargetMachine>MachineX86</TargetMachine>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>$(SolutionDir)CvWorldBuilderMap\lib\;$(SolutionDir)CvGameCoreDLLUtil\lib\;$(SolutionDir)CvLocalization\lib\;$(SolutionDir)CvGameDatabase\lib\;$(SolutionDir)FirePlace\lib\;$(SolutionDir)ThirdPartyLibs\Lua51\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>CvWorldBuilderMapWin32.lib;CvGameCoreDLLUtilWin32.lib;CvLocalizationWin32.lib;CvGameDatabaseWin32.lib;FireWorksWin32.lib;FLuaWin32.lib;lua51_Win32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)CvWorldBuilderMap\lib\;$(SolutionDir)CvGameCoreDLLUtil\lib\;$(SolutionDir)CvLocalization\lib\;$(SolutionDir)CvGameDatabase\lib\;$(SolutionDir)FirePlace\lib\;$(SolutionDir)ThirdPartyLibs\;$(SolutionDir)ThirdPartyLibs\Lua51\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>$(ProjectDir)CvGameCoreDLL.def</ModuleDefinitionFile>
+      <AdditionalDependencies>CvWorldBuilderMapWin32.lib;CvGameCoreDLLUtilWin32.lib;CvLocalizationWin32.lib;CvGameDatabaseWin32.lib;FireWorksWin32.lib;FLuaWin32.lib;lua51_Win32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <StackReserveSize>
+      </StackReserveSize>
     </Link>
     <PreBuildEvent>
       <Command>..\update_commit_id.bat</Command>
@@ -105,6 +107,33 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\ThirdPartyLibs\yaml-cpp\src\aliasmanager.cpp" />
+    <ClCompile Include="..\ThirdPartyLibs\yaml-cpp\src\binary.cpp" />
+    <ClCompile Include="..\ThirdPartyLibs\yaml-cpp\src\contrib\graphbuilder.cpp" />
+    <ClCompile Include="..\ThirdPartyLibs\yaml-cpp\src\contrib\graphbuilderadapter.cpp" />
+    <ClCompile Include="..\ThirdPartyLibs\yaml-cpp\src\conversion.cpp" />
+    <ClCompile Include="..\ThirdPartyLibs\yaml-cpp\src\directives.cpp" />
+    <ClCompile Include="..\ThirdPartyLibs\yaml-cpp\src\emitfromevents.cpp" />
+    <ClCompile Include="..\ThirdPartyLibs\yaml-cpp\src\emitter.cpp" />
+    <ClCompile Include="..\ThirdPartyLibs\yaml-cpp\src\emitterstate.cpp" />
+    <ClCompile Include="..\ThirdPartyLibs\yaml-cpp\src\emitterutils.cpp" />
+    <ClCompile Include="..\ThirdPartyLibs\yaml-cpp\src\exp.cpp" />
+    <ClCompile Include="..\ThirdPartyLibs\yaml-cpp\src\iterator.cpp" />
+    <ClCompile Include="..\ThirdPartyLibs\yaml-cpp\src\node.cpp" />
+    <ClCompile Include="..\ThirdPartyLibs\yaml-cpp\src\nodebuilder.cpp" />
+    <ClCompile Include="..\ThirdPartyLibs\yaml-cpp\src\nodeownership.cpp" />
+    <ClCompile Include="..\ThirdPartyLibs\yaml-cpp\src\null.cpp" />
+    <ClCompile Include="..\ThirdPartyLibs\yaml-cpp\src\ostream.cpp" />
+    <ClCompile Include="..\ThirdPartyLibs\yaml-cpp\src\parser.cpp" />
+    <ClCompile Include="..\ThirdPartyLibs\yaml-cpp\src\regex.cpp" />
+    <ClCompile Include="..\ThirdPartyLibs\yaml-cpp\src\scanner.cpp" />
+    <ClCompile Include="..\ThirdPartyLibs\yaml-cpp\src\scanscalar.cpp" />
+    <ClCompile Include="..\ThirdPartyLibs\yaml-cpp\src\scantag.cpp" />
+    <ClCompile Include="..\ThirdPartyLibs\yaml-cpp\src\scantoken.cpp" />
+    <ClCompile Include="..\ThirdPartyLibs\yaml-cpp\src\simplekey.cpp" />
+    <ClCompile Include="..\ThirdPartyLibs\yaml-cpp\src\singledocparser.cpp" />
+    <ClCompile Include="..\ThirdPartyLibs\yaml-cpp\src\stream.cpp" />
+    <ClCompile Include="..\ThirdPartyLibs\yaml-cpp\src\tag.cpp" />
     <ClCompile Include="CustomMods.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
@@ -724,6 +753,57 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\CvGameCoreDLLUtil\include\CvEnums.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\include\yaml-cpp\aliasmanager.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\include\yaml-cpp\anchor.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\include\yaml-cpp\binary.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\include\yaml-cpp\contrib\anchordict.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\include\yaml-cpp\contrib\graphbuilder.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\include\yaml-cpp\conversion.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\include\yaml-cpp\dll.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\include\yaml-cpp\emitfromevents.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\include\yaml-cpp\emitter.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\include\yaml-cpp\emittermanip.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\include\yaml-cpp\eventhandler.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\include\yaml-cpp\exceptions.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\include\yaml-cpp\iterator.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\include\yaml-cpp\ltnode.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\include\yaml-cpp\mark.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\include\yaml-cpp\node.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\include\yaml-cpp\nodeimpl.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\include\yaml-cpp\nodereadimpl.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\include\yaml-cpp\nodeutil.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\include\yaml-cpp\noncopyable.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\include\yaml-cpp\null.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\include\yaml-cpp\ostream.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\include\yaml-cpp\parser.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\include\yaml-cpp\stlemitter.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\include\yaml-cpp\stlnode.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\include\yaml-cpp\traits.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\include\yaml-cpp\yaml.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\src\collectionstack.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\src\contrib\graphbuilderadapter.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\src\directives.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\src\emitterstate.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\src\emitterutils.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\src\exp.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\src\indentation.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\src\iterpriv.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\src\nodebuilder.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\src\nodeownership.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\src\ptr_stack.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\src\ptr_vector.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\src\regex.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\src\regeximpl.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\src\scanner.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\src\scanscalar.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\src\scantag.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\src\setting.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\src\singledocparser.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\src\stream.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\src\streamcharsource.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\src\stringsource.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\src\tag.h" />
+    <ClInclude Include="..\ThirdPartyLibs\yaml-cpp\src\token.h" />
     <ClInclude Include="CustomMods.h" />
     <ClInclude Include="CvAchievementInfo.h" />
     <ClInclude Include="CvAchievementUnlocker.h" />
