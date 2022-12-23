@@ -2281,7 +2281,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	bool bCheckForMurder = ePlayer != NO_PLAYER && !GET_PLAYER(eUnitOwner).isBarbarian() && GET_PLAYER(eUnitOwner).getNumCities() <= 0 && (GET_PLAYER(eUnitOwner).getNumUnits() <= 1 || canFoundCity(NULL, true, true, true));
 
 #if defined(MOD_UNIT_KILL_STATS)
-	if (ePlayer != NO_PLAYER && !bDelay)
+	if (ePlayer != NO_PLAYER && bDelay)
 	{
 		AITacticalMove move = getTacticalMove();
 		saiTaskWhenKilled[(int)move + 1]++;
@@ -2290,6 +2290,10 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			GC.getMap().IncrementUnitKillCount(m_eOwner, plot()->GetPlotIndex());
 	}
 #endif
+
+	//for export at turn end
+	if (ePlayer != NO_PLAYER && bDelay)
+		GET_PLAYER(ePlayer).RememberUnitKill(this);
 
 	/*
 	//callstack logging to investigate mysterious vanishing units

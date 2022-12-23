@@ -2871,6 +2871,11 @@ public:
 	void setUnlockedGrowthAnywhereThisTurn(bool bValue);
 	bool unlockedGrowthAnywhereThisTurn() const;
 
+	//for superobserver
+	void ExportGameState();
+	void RememberUnitKill(CvUnit* pKilledUnit);
+	void ExportUnitKillEvents();
+
 protected:
 	class ConqueredByBoolField
 	{
@@ -3602,9 +3607,6 @@ protected:
 	void doResearch();
 	void doWarnings();
 
-	//for superobserver
-	void ExportGameState();
-
 	// Danger plots!
 	CvDangerPlots* m_pDangerPlots;
 
@@ -3738,6 +3740,8 @@ protected:
 #endif
 
 	std::vector<int> m_vCityConnectionPlots; //serialized
+
+	std::vector<int> m_vUnitsKilledThisTurn; //not serialized, just for development
 
 	friend FDataStream& operator>>(FDataStream&, CvPlayer::ConqueredByBoolField&);
 	friend FDataStream& operator<<(FDataStream&, const CvPlayer::ConqueredByBoolField&);

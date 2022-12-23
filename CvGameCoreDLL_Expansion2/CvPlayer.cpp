@@ -34431,9 +34431,8 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 				theMap.plotByIndexUnchecked(iI)->flipVisibility(getTeam());
 #endif
 
-#ifdef SUPEROBSERVER
+			//for visualization by other tools, AI training etc
 			ExportGameState();
-#endif
 
 			if(kGame.getActivePlayer() == m_eID)
 				theMap.updateDeferredFog();
@@ -34538,6 +34537,9 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 
 		else
 		{
+			//for visualization by other tools, AI training etc
+			ExportUnitKillEvents();
+
 #if defined(MOD_CORE_DELAYED_VISIBILITY)
 			//visibility expires now!
 			for (int iI = 0; iI < theMap.numPlots(); iI++)
@@ -44401,6 +44403,10 @@ YAML::Emitter& operator << (YAML::Emitter& out, const CvCity& x)
 //	--------------------------------------------------------------------------------
 void CvPlayer::ExportGameState()
 {
+	//ignore minors, they are mostly boring
+	if (isMinorCiv())
+		return;
+
 	std::stringstream ss;
 	ss << SUPEROBSERVER << "\\GameStatePlayer" << std::setfill('0') << std::setw(2) << GetID() << "Turn" << std::setfill('0') << std::setw(3) << GC.getGame().getGameTurn() << ".yaml";
 
@@ -44473,8 +44479,55 @@ void CvPlayer::ExportGameState()
 
 	std::ofstream dump(ss.str().c_str());
 	if (dump.good())
-		dump << out.c_str();
+		dump << out.c_str() << std::endl;
 }
+
+void CvPlayer::ExportUnitKillEvents()
+{
+	//ignore minors, they are mostly boring
+	if (isMinorCiv())
+	{
+		m_vUnitsKilledThisTurn.clear();
+		return;
+	}
+
+	YAML::Emitter out;
+	out << YAML::BeginMap;
+	out << YAML::Key << "killedEnemyUnits";
+	out << YAML::Value << YAML::Flow << m_vUnitsKilledThisTurn;
+	out << YAML::EndMap;
+
+	//append to this turn's gamestate
+	std::stringstream ss;
+	ss << SUPEROBSERVER << "\\GameStatePlayer" << std::setfill('0') << std::setw(2) << GetID() << "Turn" << std::setfill('0') << std::setw(3) << GC.getGame().getGameTurn() << ".yaml";
+	std::ofstream dump(ss.str().c_str(),std::ios::app);
+	if (dump.good())
+		dump << out.c_str() << std::endl;
+
+	m_vUnitsKilledThisTurn.clear();
+}
+
+void CvPlayer::RememberUnitKill(CvUnit* pKilledUnit)
+{
+	//if the unit is already dead, don't export again
+	if (!pKilledUnit || pKilledUnit->isDelayedDeath())
+		return;
+
+	//ignore disbanding, upgrades etc, we want only "real" kills
+	if (GetID() == pKilledUnit->GetID())
+		return;
+
+	//the pointer is about to become invalid, just store the ID
+	m_vUnitsKilledThisTurn.push_back(pKilledUnit->GetID());
+}
+
+#else
+
+//no-ops
+void CvPlayer::ExportGameState() {}
+void CvPlayer::ExportUnitKillEvents() {}
+void CvPlayer::RememberUnitKill(CvUnit*) {}
+
 #endif
 
 //	--------------------------------------------------------------------------------
