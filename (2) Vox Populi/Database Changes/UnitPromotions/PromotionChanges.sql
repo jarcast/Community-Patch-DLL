@@ -296,12 +296,6 @@ SELECT
 FROM UnitCombatInfos
 WHERE IsNaval = 1;
 
-UPDATE UnitPromotions
-SET
-	AdjacentEnemySapMovement = (SELECT Value FROM Defines WHERE Name = 'MOVE_DENOMINATOR') * 2,
-	RangedDefenseMod = -10
-WHERE Type = 'PROMOTION_MINELAYER';
-
 UPDATE UnitPromotions SET CityAttack = 125, DamageReductionCityAssault = 50 WHERE Type = 'PROMOTION_VANGUARD';
 
 UPDATE UnitPromotions SET ChangeDamageValue = -5, FriendlyHealChange = 10, NeutralHealChange = 10, EnemyHealChange = 10 WHERE Type = 'PROMOTION_DAUNTLESS';
